@@ -4,7 +4,7 @@ package.json
 package-lock.json
 
 # Database and Config
-Database.php
+config/Database.php
 
 /vendor/
 node_modules/
