@@ -25,7 +25,7 @@ class Post
         $this->conn = $db;
     }
 
-    //  Get posts from the database
+    //  Get all posts from the database
     //  Read method
     public function read()
     {
@@ -72,5 +72,56 @@ class Post
         //  Return the statement
         return $statement;
     }
-}
 
+    //  Get a single post from the database
+    //  Read Single method
+    public function readsingle()
+    {
+        //  The query is pretty much the same as the read method
+        //  This time however we do not need to ORDER BY
+        //  Instead we use a WHERE clause with a question mark '?' as a placeholder
+        //  We will then use PDO Bind Param to BIND a query parameter in the URL to this placeholder
+        //  We will look for the id in the URL query parameter
+        //  We also use a LIMIT clause to limit the results to 1 post
+        $query = 'SELECT
+                    category.name as category_name,
+                    post.id,
+                    post.category_id,
+                    post.title,
+                    post.body,
+                    post.author,
+                    post.created_at
+                FROM
+                    ' . $this->table . ' post
+                LEFT JOIN
+                    categories category ON post.category_id = category.id
+                WHERE
+                    post.id = ?
+                LIMIT 0,1';
+
+        //  PDO Prepared Statement
+        //  Takes in the query as a parameter
+        $statement = $this->conn->prepare($query);
+
+        //  BIND id
+        //  Now we want to bind the id to the placeholder
+        //  The question mark placeholder is a positional parameter as opposed to a named parameter
+        //  Since there is only one parameter we can use a positional parameter
+        //  We are binding the positional parameter at position 1 to the id
+        $statement->bindParam(1, $this->id);
+
+        //  Execute the statement
+        $statement->execute();
+
+        //  Instead of then just returning the statement
+        //  We want to fetch the array with the single item/post
+        $row = $statement->fetch(PDO::FETCH_ASSOC);
+
+        //  Set Properties on the fields
+        $this->title = $row['title'];
+        $this->body = $row['body'];
+        $this->author = $row['author'];
+        $this->category_id = $row['category_id'];
+        $this->category_name = $row['category_name'];
+    }
+}
