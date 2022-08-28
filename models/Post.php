@@ -163,4 +163,74 @@ class Post
         return false;
 
     }
+
+    //  Update a Post
+    public function update()
+    {
+        //  Create the database query using named parameters
+        $query = 'UPDATE ' . $this->table . ' 
+            SET
+                title = :title,
+                body = :body,
+                author = :author,
+                category_id = :category_id
+            WHERE
+                id = :id';
+
+        //  Prepared Statement
+        $statement = $this->conn->prepare($query);
+
+        //  Clean up the submitted data since this data will be user submitted
+        $this->title = htmlspecialchars(strip_tags($this->title));
+        $this->body = htmlspecialchars(strip_tags($this->body));
+        $this->author = htmlspecialchars(strip_tags($this->author));
+        $this->category_id = htmlspecialchars(strip_tags($this->category_id));
+        $this->id = htmlspecialchars(strip_tags($this->id));
+
+        //  Since we're using named parameters we need to bind the data to the named parameters in our query
+        $statement->bindParam(':title', $this->title);
+        $statement->bindParam(':body', $this->body);
+        $statement->bindParam(':author', $this->author);
+        $statement->bindParam(':category_id', $this->category_id);
+        $statement->bindParam(':id', $this->id);
+
+        //  Execute the query
+        if ($statement->execute()) {
+            //  If the execute method passed
+            return true;
+        }
+
+        //  If it does not execute
+        //  Print error message
+        printf("Error: %s.\n", $statement->error);
+        return false;
+
+    }
+
+    //  Delete Post
+    public function delete()
+    {
+        //  Query
+        $query = 'DELETE FROM ' . $this->table . ' WHERE id = :id';
+
+        //  Prepared Statement
+        $statement = $this->conn->prepare($query);
+
+        //  Clean the id
+        $this->id = htmlspecialchars(strip_tags($this->id));
+
+        //  Bind Params
+        $statement->bindParam(':id', $this->id);
+
+        //  Execute the query
+        if ($statement->execute()) {
+            //  If the execute method passed
+            return true;
+        }
+
+        //  If it does not execute
+        //  Print error message
+        printf("Error: %s.\n", $statement->error);
+        return false;
+    }
 }
